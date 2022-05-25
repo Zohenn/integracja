@@ -30,7 +30,7 @@ namespace Backend.Controllers
         [HttpGet("date-range")]
         public IActionResult DateRange(DateTime? startDate, DateTime? endDate)
         {
-            if(startDate == null || endDate == null)
+            if(startDate == null || endDate == null || endDate > startDate)
             {
                 return BadRequest();
             }
