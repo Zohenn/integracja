@@ -1,4 +1,4 @@
-﻿using Backend.Services.ConflictService;
+﻿using Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -30,7 +30,7 @@ namespace Backend.Controllers
         [HttpGet("date-range")]
         public IActionResult DateRange(DateTime? startDate, DateTime? endDate)
         {
-            if(startDate == null || endDate == null || endDate > startDate)
+            if(startDate == null || endDate == null || endDate < startDate)
             {
                 return BadRequest();
             }

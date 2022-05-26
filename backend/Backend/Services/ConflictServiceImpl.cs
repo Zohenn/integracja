@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Backend.Services.ConflictService
+namespace Backend.Services
 {
     public class ConflictServiceImpl : IConflictService
     {

@@ -1,4 +1,4 @@
-using Backend.Services.ConflictService;
+using Backend.Services;
 using Backend.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +35,7 @@ namespace Backend
             services.AddControllers();
             services.AddScoped<IUserService, UserServiceImpl>();
             services.AddScoped<IConflictService, ConflictServiceImpl>();
+            services.AddScoped<INaturalGasService, NaturalGasServiceImpl>();
             services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme =
@@ -66,6 +67,7 @@ namespace Backend
             {
                 endpoints.MapControllers();
                 endpoints.UseSoapEndpoint<IConflictService>("/api/soap/Conflicts.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
+                endpoints.UseSoapEndpoint<INaturalGasService>("/api/soap/NaturalGas.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
             });
         }
     }

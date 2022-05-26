@@ -7,6 +7,8 @@ namespace Backend.Services
     {
         public DbSet<Conflict> Conflicts { get; set; }
 
+        public DbSet<NaturalGas> NaturalGas { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder

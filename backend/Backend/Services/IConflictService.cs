@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 
-namespace Backend.Services.ConflictService
+namespace Backend.Services
 {
     [ServiceContract]
     public interface IConflictService

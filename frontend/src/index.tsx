@@ -4,8 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { CategoryScale, Chart as ChartJS, LinearScale, LineElement, PointElement } from 'chart.js';
+import axios from 'axios';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement)
+
+axios.defaults.baseURL = 'http://localhost:8080'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
