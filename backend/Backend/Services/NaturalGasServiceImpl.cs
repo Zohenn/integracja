@@ -24,7 +24,7 @@ namespace Backend.Services
         {
             using var db = new DatabaseContext();
             var baseQuery = db.NaturalGas.Select(entry => entry.Date);
-            return new ResourceInfo("Natural gas", baseQuery.Min(), baseQuery.Max());
+            return new ResourceInfo("Natural gas", "$/MMBtu", baseQuery.Min(), baseQuery.Max());
         }
     }
 }

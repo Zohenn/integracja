@@ -25,7 +25,7 @@ namespace Backend.Services
         {
             using var db = new DatabaseContext();
             var baseQuery = db.Oil.Select(entry => entry.Date);
-            return new ResourceInfo("Oil", baseQuery.Min(), baseQuery.Max());
+            return new ResourceInfo("Oil", "$/barrel", baseQuery.Min(), baseQuery.Max());
         }
     }
 }

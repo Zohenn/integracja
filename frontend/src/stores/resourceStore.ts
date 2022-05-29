@@ -5,14 +5,23 @@ export type Resources = 'oil' | 'naturalgas' | 'gold' | 'grain';
 
 export interface Resource {
   name: string;
+  unit: string;
   minDate: Date;
   maxDate: Date;
+  subsets?: Record<string, string>;
 }
 
-export interface ResourceDataEntry {
+export interface BaseResourceDataEntry {
   date: Date;
+}
+
+export interface ResourceDataEntry extends BaseResourceDataEntry {
   price: number;
 }
+
+export type ResourceSubsetDataEntry = {
+  [k: string]: number;
+} & BaseResourceDataEntry;
 
 interface ResourceStore {
   initialized: boolean;

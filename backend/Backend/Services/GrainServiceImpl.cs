@@ -24,7 +24,12 @@ namespace Backend.Services
         {
             using var db = new DatabaseContext();
             var baseQuery = db.Grain.Select(entry => entry.Date);
-            return new ResourceInfo("Grains", baseQuery.Min(), baseQuery.Max());
+            return new ResourceInfo("Grains", "$/ton", baseQuery.Min(), baseQuery.Max(), new Dictionary<string, string>()
+            {
+                { "wheat", "Wheat" },
+                { "rice", "Rice" },
+                { "corn", "Corn" },
+            });
         }
     }
 }

@@ -6,25 +6,25 @@ namespace Backend.Controllers
 {
     [Route("api/rest/[controller]")]
     [ApiController]
-    public class ConflictsController: ControllerBase
+    public class ConflictController: ControllerBase
     {
-        private readonly IConflictService conflictService;
+        private readonly IConflictService service;
 
-        public ConflictsController()
+        public ConflictController()
         {
-            conflictService = new ConflictServiceImpl();
+            service = new ConflictServiceImpl();
         }
 
         [HttpGet("")]
         public IActionResult All()
         {
-            return Ok(conflictService.All());
+            return Ok(service.All());
         }
 
         [HttpGet("{id}")]
         public IActionResult Id(int id)
         {
-            return Ok(conflictService.GetById(id));
+            return Ok(service.GetById(id));
         }
 
         [HttpGet("date-range")]
@@ -34,7 +34,7 @@ namespace Backend.Controllers
             {
                 return BadRequest();
             }
-            return Ok(conflictService.GetDateRange((DateTime)startDate, (DateTime)endDate));
+            return Ok(service.GetDateRange((DateTime)startDate, (DateTime)endDate));
         }
     }
 }

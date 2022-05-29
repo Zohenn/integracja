@@ -69,7 +69,7 @@ namespace Backend
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.UseSoapEndpoint<IConflictService>("/api/soap/Conflicts.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
+                endpoints.UseSoapEndpoint<IConflictService>("/api/soap/Conflict.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
                 endpoints.UseSoapEndpoint<INaturalGasService>("/api/soap/NaturalGas.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
                 endpoints.UseSoapEndpoint<IGoldService>("/api/soap/Gold.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
                 endpoints.UseSoapEndpoint<IGrainService>("/api/soap/Grain.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);

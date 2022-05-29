@@ -24,7 +24,7 @@ namespace Backend.Services
         {
             using var db = new DatabaseContext();
             var baseQuery = db.Gold.Select(entry => entry.Date);
-            return new ResourceInfo("Gold", baseQuery.Min(), baseQuery.Max());
+            return new ResourceInfo("Gold", "$/ounce", baseQuery.Min(), baseQuery.Max());
         }
     }
 }
