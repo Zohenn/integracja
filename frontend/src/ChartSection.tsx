@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Resource, ResourceDataEntry, Resources, useResourceStore } from './stores/resourceStore';
 import { format, isAfter, isBefore } from 'date-fns';
 import axios from 'axios';
-import { amber, blue, blueGrey } from '@mui/material/colors';
+import { amber, blue, blueGrey, yellow } from '@mui/material/colors';
 import { ChartOptions, LinearScale } from 'chart.js';
 import { useConflictStore } from './stores/conflictStore';
 import { AnnotationOptions, LineAnnotationOptions } from 'chartjs-plugin-annotation';
@@ -12,7 +12,8 @@ import { AnnotationOptions, LineAnnotationOptions } from 'chartjs-plugin-annotat
 const resourceColors: Record<Resources, string> = {
   oil: 'black',
   naturalgas: blue[500],
-  gold: amber[500]
+  gold: amber[500],
+  grain: yellow[500]
 }
 
 const chartOptions: ChartOptions<"line"> = {
@@ -26,7 +27,12 @@ const chartOptions: ChartOptions<"line"> = {
   // }
 }
 
-function ResourcesList() {
+interface ResourcesListProps {
+  selectedResource: Resources;
+  onSelectionChanged: (resource: Resources) => void;
+}
+
+function ResourcesList({ selectedResource, onSelectionChanged }: ResourcesListProps) {
   const resourceStore = useResourceStore();
   const { resources } = resourceStore;
 
@@ -38,8 +44,11 @@ function ResourcesList() {
       <ListSubheader sx={{ textAlign: 'left' }}>Resources</ListSubheader>
     }>
       <Stack direction='row' spacing={1}>
-        {Object.entries(resources).map(([key, resource]) =>
-          <ListItemButton key={key} selected={true} sx={{ borderRadius: 3 }}>
+        {(Object.entries(resources) as [Resources, Resource][]).map(([key, resource]) =>
+          <ListItemButton key={key}
+                          selected={key === selectedResource}
+                          sx={{ borderRadius: 3 }}
+                          onClick={() => onSelectionChanged(key)}>
             <ListItemText primary={resource.name} secondary={resourceDates(resource)}/>
           </ListItemButton>
         )}
@@ -51,13 +60,18 @@ function ResourcesList() {
 export function ChartSection() {
   const conflictStore = useConflictStore();
   const resourceStore = useResourceStore();
+  const [resource, setResource] = useState<Resources>('naturalgas');
   const [data, setData] = useState<ResourceDataEntry[]>([]);
 
-  const resourceInfo = resourceStore.resources.naturalgas;
+  const resourceInfo = resourceStore.resources[resource];
 
   const init = async () => {
     await Promise.all([conflictStore.init(), resourceStore.init()]);
-    const response = await axios.get<ResourceDataEntry[]>('/api/rest/naturalgas');
+    await fetchResourceData();
+  }
+
+  const fetchResourceData = async () => {
+    const response = await axios.get<ResourceDataEntry[]>(`/api/rest/${resource}`);
     setData(response.data.map((entry) => ({ ...entry, date: new Date(entry.date) })));
   }
 
@@ -86,7 +100,7 @@ export function ChartSection() {
           const label = format(conflict.date, 'MMM yyyy');
           const index = labels?.indexOf(label);
           let yValue;
-          if(index !== undefined && index > -1){
+          if (index !== undefined && index > -1) {
             yValue = data.data[index];
           }
           yValue ??= 0;
@@ -111,21 +125,25 @@ export function ChartSection() {
     init();
   }, []);
 
+  useEffect(() => {
+    fetchResourceData();
+  }, [resource])
+
   return (
     <Box sx={{ padding: 2 }}>
       {
         initialized ? <Stack spacing={2}>
-          <ResourcesList/>
+          <ResourcesList selectedResource={resource} onSelectionChanged={(resource) => setResource(resource)}/>
           <Box sx={{ minHeight: '300px' }}>
             <Line data={{
               labels,
               datasets: [
                 {
-                  label: '',
+                  label: resourceInfo!.name,
                   data: values,
                   pointRadius: 0,
-                  borderColor: resourceColors.naturalgas,
-                  backgroundColor: resourceColors.naturalgas,
+                  borderColor: resourceColors[resource],
+                  backgroundColor: resourceColors[resource],
                 }
               ]
             }} options={{ ...chartOptions, plugins: { annotation: { annotations } } } as ChartOptions<"line">}/>

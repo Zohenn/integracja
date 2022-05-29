@@ -9,6 +9,12 @@ namespace Backend.Services
 
         public DbSet<NaturalGas> NaturalGas { get; set; }
 
+        public DbSet<Oil> Oil { get; set; }
+
+        public DbSet<Grain> Grain { get; set; }
+
+        public DbSet<Gold> Gold { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder

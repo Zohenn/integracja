@@ -1,7 +1,7 @@
 import axios from 'axios';
 import create from 'zustand';
 
-export type Resources = 'oil' | 'naturalgas' | 'gold';
+export type Resources = 'oil' | 'naturalgas' | 'gold' | 'grain';
 
 export interface Resource {
   name: string;
@@ -21,13 +21,15 @@ interface ResourceStore {
   init: () => Promise<void>;
 }
 
-const resourceKeys: Resources[] = ['naturalgas'];
+const resourceKeys: Resources[] = ['naturalgas', 'oil', 'gold', 'grain'];
 
 export const useResourceStore = create<ResourceStore>((set, get) => ({
   initialized: false,
   resources: {
     oil: undefined,
     naturalgas: undefined,
+    gold: undefined,
+    grain: undefined,
   },
 
   init: async () => {

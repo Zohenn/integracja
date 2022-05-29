@@ -36,6 +36,9 @@ namespace Backend
             services.AddScoped<IUserService, UserServiceImpl>();
             services.AddScoped<IConflictService, ConflictServiceImpl>();
             services.AddScoped<INaturalGasService, NaturalGasServiceImpl>();
+            services.AddScoped<IGoldService, GoldServiceImpl>();
+            services.AddScoped<IGrainService, GrainServiceImpl>();
+            services.AddScoped<IOilService, OilServiceImpl>();
             services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme =
@@ -68,6 +71,9 @@ namespace Backend
                 endpoints.MapControllers();
                 endpoints.UseSoapEndpoint<IConflictService>("/api/soap/Conflicts.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
                 endpoints.UseSoapEndpoint<INaturalGasService>("/api/soap/NaturalGas.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
+                endpoints.UseSoapEndpoint<IGoldService>("/api/soap/Gold.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
+                endpoints.UseSoapEndpoint<IGrainService>("/api/soap/Grain.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
+                endpoints.UseSoapEndpoint<IOilService>("/api/soap/Oil.asmx", new SoapEncoderOptions(), SoapSerializer.XmlSerializer);
             });
         }
     }
