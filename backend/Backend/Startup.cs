@@ -1,20 +1,16 @@
+using Backend.Middlewares;
 using Backend.Services;
 using Backend.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using SoapCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Backend
 {
@@ -32,7 +28,11 @@ namespace Backend
         {
             services.AddSoapCore();
             services.AddCors();
-            services.AddControllers();
+            services.AddMvcCore().AddFormatterMappings().AddXmlSerializerFormatters();
+            services.AddControllers(options =>
+            {
+                options.Filters.Add<FormatFilter>();
+            });
             services.AddScoped<IUserService, UserServiceImpl>();
             services.AddScoped<IConflictService, ConflictServiceImpl>();
             services.AddScoped<INaturalGasService, NaturalGasServiceImpl>();
@@ -66,6 +66,7 @@ namespace Backend
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseFileRequestMiddleware();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

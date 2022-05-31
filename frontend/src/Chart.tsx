@@ -114,7 +114,7 @@ export function Chart({ selectedResource }: ChartProps) {
         (element.options as LineAnnotationOptions).label!.enabled = false;
         chart.draw();
       }
-    }) as AnnotationOptions),
+    }) as AnnotationOptions<'line'>),
     [resourceInfo, conflictStore.conflicts]
   );
 

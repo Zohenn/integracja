@@ -6,11 +6,11 @@ namespace Backend.Controllers
 {
     [Route("api/rest/[controller]")]
     [ApiController]
-    public class ConflictController: ControllerBase
+    public class ConflictsController: ControllerBase
     {
         private readonly IConflictService service;
 
-        public ConflictController()
+        public ConflictsController()
         {
             service = new ConflictServiceImpl();
         }
