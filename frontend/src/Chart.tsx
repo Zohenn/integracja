@@ -1,5 +1,5 @@
 import {
-  BaseResourceDataEntry,
+  BaseResourceDataEntry, Resource,
   ResourceDataEntry,
   Resources,
   ResourceSubsetDataEntry,
@@ -8,12 +8,31 @@ import {
 import { useConflictStore } from './stores/conflictStore';
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { format, isAfter, isBefore } from 'date-fns';
+import {
+  eachDayOfInterval,
+  eachMonthOfInterval,
+  eachYearOfInterval,
+  format, formatISO,
+  getTime, getYear,
+  isAfter,
+  isBefore
+} from 'date-fns';
 import { amber, blue, blueGrey, yellow } from '@mui/material/colors';
 import { ChartDataset, ChartOptions, LinearScale } from 'chart.js';
 import { AnnotationOptions, LineAnnotationOptions } from 'chartjs-plugin-annotation';
-import { Box, CircularProgress } from '@mui/material';
+import {
+  Box, Button,
+  CircularProgress, Divider,
+  FormControl, FormControlLabel,
+  FormLabel,
+  Grid,
+  ListSubheader, Radio, RadioGroup,
+  Slider,
+  Stack,
+  Typography
+} from '@mui/material';
 import { Line } from 'react-chartjs-2';
+import { isDateInRange } from './utils';
 
 const resourceColors: Record<Resources, string | Record<string, string>> = {
   oil: '#000000',
@@ -32,6 +51,23 @@ const baseChartOptions: ChartOptions<"line"> = {
   interaction: { intersect: false, mode: 'index' },
 }
 
+const baseAnnotationOptions: AnnotationOptions<"line"> = {
+  type: 'line',
+  borderColor: blueGrey[400],
+  borderDash: [6, 6],
+  borderDashOffset: 0,
+  borderWidth: 2,
+  scaleID: 'x',
+  enter({ chart, element }) {
+    (element.options as LineAnnotationOptions).label!.enabled = true;
+    chart.draw();
+  },
+  leave({ chart, element }) {
+    (element.options as LineAnnotationOptions).label!.enabled = false;
+    chart.draw();
+  }
+}
+
 interface ChartProps {
   selectedResource: Resources;
 }
@@ -44,24 +80,47 @@ export function Chart({ selectedResource }: ChartProps) {
 
   const resourceInfo = resourceStore.resources[selectedResource]!;
 
+  const [dateRange, setDateRange] = useState<[number, number]>([getTime(resourceInfo.minDate), getTime(resourceInfo.maxDate)]);
+
   const fetchResourceData = async () => {
     setIsFetching(true);
     try {
       const response = await axios.get<BaseResourceDataEntry[]>(`/api/rest/${selectedResource}`);
       setData(response.data.map((entry) => ({ ...entry, date: new Date(entry.date) })));
+      setDateRange([getTime(resourceInfo.minDate), getTime(resourceInfo.maxDate)]);
     } finally {
       setIsFetching(false);
     }
   }
 
-  const labels = useMemo(() => data.map((entry) => format(entry.date, 'MMM yyyy')), [data]);
+  const exportData = async (dataSource: string, fileType: string) => {
+    let url = `http://localhost:8080/api/rest/${selectedResource}`;
+    const query = new URLSearchParams();
+    query.append('format', fileType);
+    if(dataSource === 'date-range'){
+      url += '/date-range'
+      query.append('startDate', formatISO(dateRange[0]));
+      query.append('endDate', formatISO(dateRange[1]));
+    }
+    window.location.href = `${url}?${query.toString()}`
+  }
+
+  const dataForRange = useMemo(() =>
+      data.filter((entry) => isDateInRange(entry.date, dateRange[0], dateRange[1])),
+    [data, dateRange]
+  );
+
+  const labels = useMemo(() =>
+      dataForRange.map((entry) => format(entry.date, 'MMM yyyy')),
+    [dataForRange]
+  );
 
   const datasets = useMemo<ChartDataset<"line">[]>(() => {
     if (!resourceInfo.subsets) {
       return [
         {
           label: resourceInfo!.name,
-          data: data.map((entry) => (entry as ResourceDataEntry).price),
+          data: dataForRange.map((entry) => (entry as ResourceDataEntry).price),
           pointRadius: 0,
           borderColor: resourceColors[selectedResource],
           backgroundColor: resourceColors[selectedResource] + '80',
@@ -71,21 +130,17 @@ export function Chart({ selectedResource }: ChartProps) {
 
     return Object.entries(resourceInfo.subsets).map(([key, title]) => ({
       label: title,
-      data: data.map((entry) => (entry as ResourceSubsetDataEntry)[key]),
+      data: dataForRange.map((entry) => (entry as ResourceSubsetDataEntry)[key]),
       pointRadius: 0,
       borderColor: (resourceColors[selectedResource] as Record<string, string>)[key],
       backgroundColor: (resourceColors[selectedResource] as Record<string, string>)[key] + '80',
     }))
-  }, [data])
+  }, [dataForRange])
 
   const annotations = useMemo(() => conflictStore.conflicts
-    .filter((conflict) => isAfter(conflict.date, resourceInfo.minDate) && isBefore(conflict.date, resourceInfo.maxDate))
+    .filter((conflict) => isDateInRange(conflict.date, dateRange[0], dateRange[1]))
     .map((conflict) => ({
-      type: 'line',
-      borderColor: blueGrey[400],
-      borderDash: [6, 6],
-      borderDashOffset: 0,
-      borderWidth: 2,
+      ...baseAnnotationOptions,
       label: {
         enabled: false,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -104,18 +159,9 @@ export function Chart({ selectedResource }: ChartProps) {
           return yValue < maxYScaleValue / 2 ? 'start' : 'end';
         },
       },
-      scaleID: 'x',
       value: format(conflict.date, 'MMM yyyy'),
-      enter({ chart, element }) {
-        (element.options as LineAnnotationOptions).label!.enabled = true;
-        chart.draw();
-      },
-      leave({ chart, element }) {
-        (element.options as LineAnnotationOptions).label!.enabled = false;
-        chart.draw();
-      }
     }) as AnnotationOptions<'line'>),
-    [resourceInfo, conflictStore.conflicts]
+    [dateRange, conflictStore.conflicts]
   );
 
   useEffect(() => {
@@ -148,7 +194,7 @@ export function Chart({ selectedResource }: ChartProps) {
               }
             } as ChartOptions<"line">}/>}
       </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'no-wrap' }}>
         <Box sx={{
           height: '2px',
           width: '18px',
@@ -158,6 +204,72 @@ export function Chart({ selectedResource }: ChartProps) {
         }}></Box>
         <span style={{ fontSize: '.875rem' }}>Military conflicts</span>
       </Box>
+      <Box sx={{ marginBottom: 3 }}>
+        <DateRangeSlider resourceInfo={resourceInfo}
+                         dateRange={dateRange}
+                         onChange={(value) => setDateRange(value)}/>
+      </Box>
+      <Divider/>
+      <FileExportSection onExport={exportData}/>
     </>
+  )
+}
+
+interface DateRangeSliderProps {
+  dateRange: number[];
+  resourceInfo: Resource;
+  onChange: (value: [number, number]) => void;
+}
+
+function DateRangeSlider({ dateRange, resourceInfo, onChange }: DateRangeSliderProps) {
+  const dateMarks = useMemo(() =>
+      eachYearOfInterval({ start: resourceInfo.minDate, end: resourceInfo.maxDate })
+      .filter((date) => getYear(date) % 5 === 0)
+      .map((date) => ({ label: format(date, 'yyyy'), value: getTime(date) })),
+    [resourceInfo]
+  );
+
+  return (
+    <Slider min={getTime(resourceInfo.minDate)}
+            max={getTime(resourceInfo.maxDate)}
+            valueLabelFormat={(value) => format(value, 'MMM yyyy')}
+            marks={dateMarks}
+            value={dateRange}
+            onChange={(_, value) => onChange(value as [number, number])}
+            valueLabelDisplay='auto'/>
+  )
+}
+
+interface FileExportSectionProps {
+  onExport: (dataSource: string, fileType: string) => void;
+}
+
+function FileExportSection({ onExport }: FileExportSectionProps) {
+  const [dataSource, setDataSource] = useState('date-range');
+  const [fileType, setFileType] = useState('json');
+
+  return (
+    <Stack spacing={2}>
+      <Typography variant="h6" component="h6">Export data</Typography>
+      <Stack direction='row' spacing={5}>
+        <FormControl>
+          <FormLabel>Data source</FormLabel>
+          <RadioGroup row value={dataSource} onChange={(_, value) => setDataSource(value)}>
+            <FormControlLabel value='date-range' control={<Radio/>} label='Visible range'/>
+            <FormControlLabel value='all' control={<Radio/>} label='All data'/>
+          </RadioGroup>
+        </FormControl>
+        <FormControl>
+          <FormLabel>File type</FormLabel>
+          <RadioGroup row value={fileType} onChange={(_, value) => setFileType(value)}>
+            <FormControlLabel value='json' control={<Radio/>} label='JSON'/>
+            <FormControlLabel value='xml' control={<Radio/>} label='XML'/>
+          </RadioGroup>
+        </FormControl>
+      </Stack>
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Button variant="contained" onClick={() => onExport(dataSource, fileType)}>Export</Button>
+      </Box>
+    </Stack>
   )
 }
