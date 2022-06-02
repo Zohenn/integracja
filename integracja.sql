@@ -9615,10 +9615,10 @@ INSERT INTO `oil` (`date`, `price`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `rice_wheat_corn`
+-- Struktura tabeli dla tabeli `grain`
 --
 
-CREATE TABLE `rice_wheat_corn` (
+CREATE TABLE `grain` (
   `date` date NOT NULL,
   `wheat` float DEFAULT NULL,
   `rice` float DEFAULT NULL,
@@ -9626,10 +9626,10 @@ CREATE TABLE `rice_wheat_corn` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Zrzut danych tabeli `rice_wheat_corn`
+-- Zrzut danych tabeli `grain`
 --
 
-INSERT INTO `rice_wheat_corn` (`date`, `wheat`, `rice`, `corn`) VALUES
+INSERT INTO `grain` (`date`, `wheat`, `rice`, `corn`) VALUES
 ('1992-02-01', 170.12, 278.25, 113.62),
 ('1992-03-01', 161.44, 277.2, 117),
 ('1992-04-01', 153.07, 278, 108.52),
@@ -10020,9 +10020,9 @@ ALTER TABLE `oil`
   ADD PRIMARY KEY (`date`);
 
 --
--- Indeksy dla tabeli `rice_wheat_corn`
+-- Indeksy dla tabeli `grain`
 --
-ALTER TABLE `rice_wheat_corn`
+ALTER TABLE `grain`
   ADD PRIMARY KEY (`date`);
 
 --
