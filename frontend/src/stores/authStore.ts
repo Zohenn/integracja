@@ -26,11 +26,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAdmin: () => get().isSignedIn() && get().user!.role === "admin",
 
   signIn: async (username, password) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    set({ user: { username: 'Username', role: 'user' }});
-    return;
+    // await new Promise(resolve => setTimeout(resolve, 1000));
+    // set({ user: { username: 'Username', role: 'user' }});
+    // return;
 
-    const response = await axios.post<LoginResponse>('/api/rest/user/authenticate', { username, password });
+    const response = await axios.post<LoginResponse>('/api/rest/users/authenticate', { username, password });
 
     if(response.status === 200){
       const { token, ...user } = response.data;
