@@ -1,11 +1,14 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Backend.Controllers
 {
     [Route("api/rest/{controller}")]
     [ApiController]
+    [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GrainController : ControllerBase
     {
         private readonly IGrainService service;

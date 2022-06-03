@@ -25,19 +25,5 @@ namespace Backend.Controllers
                 return BadRequest(new { message = "Username or password is incorrect"  });
             return Ok(response);
         }
-
-        [HttpGet("all")]
-        [Authorize(Roles = "admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult All()
-        {
-            return Ok(userService.GetUsers());
-        }
-
-        [HttpGet("count")]
-        [Authorize(Roles = "user", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public IActionResult Count()
-        {
-            return Ok(userService.GetUsers().Count);
-        }
     }
 }

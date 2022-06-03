@@ -10,6 +10,6 @@ namespace Backend.Entities
 
         [JsonIgnore]
         public string Password { get; set; }
-        public List<Role> Roles { get; set; }
+        public Role Role { get; set; }
     }
 }

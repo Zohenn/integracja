@@ -1,4 +1,6 @@
 ﻿using Backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -6,6 +8,7 @@ namespace Backend.Controllers
 {
     [Route("api/rest/{controller}")]
     [ApiController]
+    [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class NaturalGasController: ControllerBase
     {
         private readonly INaturalGasService service;

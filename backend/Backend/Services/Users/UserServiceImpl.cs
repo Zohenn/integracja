@@ -1,5 +1,6 @@
 ﻿using Backend.Entities;
 using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -13,11 +14,6 @@ namespace Backend.Services.Users
 {
     public class UserServiceImpl : IUserService
     {
-        private static List<User> users = new List<User>{
-            new User{Id = 1, Username = "Andrzej", Password = "Andrzej", Roles = new List<Role>{ new Role { Role_ = "admin" }, new Role { Role_ = "user" } } },
-            new User{Id = 2, Username = "Piotrek", Password = "Piotrek", Roles = new List<Role>{ new Role { Role_ = "number" }, new Role { Role_ = "user" } } },
-            new User{Id = 3, Username = "Ania", Password = "Ania", Roles = new List<Role>{new Role { Role_ = "user" } }}
-        };
 
         private IConfiguration configuration;
 
@@ -28,6 +24,7 @@ namespace Backend.Services.Users
 
         public AuthenticationResponse Authenticate(AuthenticationRequest request)
         {
+            using var db = new DatabaseContext();
             User user = GetByUsername(request.Username);
             if (user == null || user.Password != request.Password)
             {
@@ -39,17 +36,21 @@ namespace Backend.Services.Users
 
         public User GetById(int id)
         {
-            return users.FirstOrDefault(x => x.Id == id);
+            //return users.FirstOrDefault(x => x.Id == id);
+            using var db = new DatabaseContext();
+            return db.User.Where(user => user.Id == id).FirstOrDefault();
         }
 
         public User GetByUsername(string username)
         {
-            return users.FirstOrDefault(x => x.Username == username);
+            using var db = new DatabaseContext();
+            return db.User.Select(user => user).Include(user => user.Role).FirstOrDefault(user => user.Username == username);
         }
 
         public List<User> GetUsers()
         {
-            return users;
+            using var db = new DatabaseContext();
+            return db.User.ToList();
         }
 
         public string generateJwtToken(User user)
@@ -58,10 +59,7 @@ namespace Backend.Services.Users
             var key = Encoding.ASCII.GetBytes(configuration["Jwt:key"]);
             var claims = new List<Claim>();
             claims.Add(new Claim("id", user.Id.ToString()));
-            foreach (var role in user.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Role_));
-            }
+            claims.Add(new Claim(ClaimTypes.Role, user.Role.Name.ToString()));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
