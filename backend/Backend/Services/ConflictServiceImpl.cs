@@ -1,11 +1,12 @@
 ﻿using Backend.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Backend.Services
 {
-    public class ConflictServiceImpl : IConflictService
+    public class ConflictServiceImpl : UploadService<Conflict>, IConflictService
     {
         public List<Conflict> All()
         {
@@ -17,6 +18,11 @@ namespace Backend.Services
         {
             using var db = new DatabaseContext();
             return db.Conflicts.Where(conflict => conflict.Id == id).FirstOrDefault();
+        }
+
+        public override DbSet<Conflict> GetDataSet(DatabaseContext db)
+        {
+            return db.Conflicts;
         }
 
         public List<Conflict> GetDateRange(DateTime startDate, DateTime endDate)

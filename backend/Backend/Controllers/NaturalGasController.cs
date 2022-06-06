@@ -1,4 +1,5 @@
-﻿using Backend.Services;
+﻿using Backend.Entities;
+using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,14 +10,16 @@ namespace Backend.Controllers
     [Route("api/rest/{controller}")]
     [ApiController]
     [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class NaturalGasController: ControllerBase
+    public class NaturalGasController: UploadController<NaturalGas>
     {
-        private readonly INaturalGasService service;
+        private readonly NaturalGasServiceImpl service;
 
         public NaturalGasController()
         {
             service = new NaturalGasServiceImpl();
         }
+
+        protected override UploadService<NaturalGas> Service => service;
 
         [HttpGet("")]
         public IActionResult All()

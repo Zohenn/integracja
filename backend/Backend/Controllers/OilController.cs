@@ -1,4 +1,5 @@
-﻿using Backend.Services;
+﻿using Backend.Entities;
+using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,14 +10,16 @@ namespace Backend.Controllers
     [Route("api/rest/{controller}")]
     [ApiController]
     [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class OilController : ControllerBase
+    public class OilController : UploadController<Oil>
     {
-        private readonly IOilService service;
+        private readonly OilServiceImpl service;
 
         public OilController()
         {
             service = new OilServiceImpl();
         }
+
+        protected override UploadService<Oil> Service => service;
 
         [HttpGet("")]
         public IActionResult All()
