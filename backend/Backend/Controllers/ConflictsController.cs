@@ -1,17 +1,24 @@
-﻿using Backend.Services;
+﻿using Backend.Entities;
+using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Backend.Controllers
 {
     [Route("api/rest/[controller]")]
     [ApiController]
     [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ConflictsController: ControllerBase
+    public class ConflictsController : UploadController<Conflict>
     {
-        private readonly IConflictService service;
+        protected readonly ConflictServiceImpl service;
+
+        protected override UploadService<Conflict> Service { get => service; }
 
         public ConflictsController()
         {

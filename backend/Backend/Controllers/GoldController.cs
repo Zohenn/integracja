@@ -1,4 +1,5 @@
-﻿using Backend.Services;
+﻿using Backend.Entities;
+using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +10,11 @@ namespace Backend.Controllers
     [Route("api/rest/{controller}")]
     [ApiController]
     [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class GoldController : ControllerBase
+    public class GoldController : UploadController<Gold>
     {
-        private readonly IGoldService service;
+        private readonly GoldServiceImpl service;
+
+        protected override UploadService<Gold> Service => service;
 
         public GoldController()
         {

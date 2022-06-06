@@ -3,20 +3,23 @@ using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Backend.Entities;
 
 namespace Backend.Controllers
 {
     [Route("api/rest/{controller}")]
     [ApiController]
     [Authorize(Roles = "user,admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class GrainController : ControllerBase
+    public class GrainController : UploadController<Grain>
     {
-        private readonly IGrainService service;
+        private readonly GrainServiceImpl service;
 
         public GrainController()
         {
             service = new GrainServiceImpl();
         }
+
+        protected override UploadService<Grain> Service => service;
 
         [HttpGet("")]
         public IActionResult All()

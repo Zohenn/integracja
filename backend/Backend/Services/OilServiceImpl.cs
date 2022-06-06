@@ -1,12 +1,13 @@
 ﻿using Backend.Entities;
 using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Backend.Services
 {
-    public class OilServiceImpl : IOilService
+    public class OilServiceImpl : UploadService<Oil>, IOilService
     {
         public List<Oil> All()
         {
@@ -48,6 +49,11 @@ namespace Backend.Services
             using var db = new DatabaseContext();
             var baseQuery = db.Oil.Select(entry => entry.Date);
             return new ResourceInfo("Oil", "$/barrel", baseQuery.Min(), baseQuery.Max());
+        }
+
+        public override DbSet<Oil> GetDataSet(DatabaseContext db)
+        {
+            return db.Oil;
         }
     }
 }

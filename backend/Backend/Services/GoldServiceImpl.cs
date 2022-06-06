@@ -1,17 +1,23 @@
 ﻿using Backend.Entities;
 using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Backend.Services
 {
-    public class GoldServiceImpl : IGoldService
+    public class GoldServiceImpl : UploadService<Gold>, IGoldService
     {
         public List<Gold> All()
         {
             using var db = new DatabaseContext();
             return db.Gold.ToList();
+        }
+
+        public override DbSet<Gold> GetDataSet(DatabaseContext db)
+        {
+            return db.Gold;
         }
 
         public List<Gold> GetDateRange(DateTime startDate, DateTime endDate)

@@ -1,17 +1,23 @@
 ﻿using Backend.Entities;
 using Backend.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Backend.Services
 {
-    public class NaturalGasServiceImpl : INaturalGasService
+    public class NaturalGasServiceImpl : UploadService<NaturalGas>, INaturalGasService
     {
         public List<NaturalGas> All()
         {
             using var db = new DatabaseContext();
             return db.NaturalGas.ToList();
+        }
+
+        public override DbSet<NaturalGas> GetDataSet(DatabaseContext db)
+        {
+            return db.NaturalGas;
         }
 
         public List<NaturalGas> GetDateRange(DateTime startDate, DateTime endDate)
