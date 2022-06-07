@@ -103,7 +103,18 @@ export function Chart({ selectedResource }: ChartProps) {
       query.append('startDate', formatISO(dateRange[0]));
       query.append('endDate', formatISO(dateRange[1]));
     }
-    window.location.href = `${url}?${query.toString()}`
+    const response = await axios.get(`${url}?${query.toString()}`, { responseType: 'blob' });
+
+    const contentType = response.headers['content-type']
+    const mimeType = contentType.split(';')[0];
+    const fileExtension = mimeType.split('/')[1];
+    const objectUrl = window.URL.createObjectURL(response.data);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.setAttribute('download', `data.${fileExtension}`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   const importData = async (dataType: string, file: File) => {
