@@ -14,12 +14,14 @@ namespace Backend.Services
         public List<T>? Upload(string data, string format)
         {
             List<T>? items;
+            Console.WriteLine(format);
             switch (format)
             {
                 case "application/json":
                     items = JsonConvert.DeserializeObject<List<T>>(data);
                     break;
                 case "application/xml":
+                case "text/xml":
                     var serializer = new XmlSerializer(typeof(List<T>));
                     using (var reader = new StringReader(data))
                     {
@@ -33,12 +35,14 @@ namespace Backend.Services
             if (items != null)
             {
                 using var db = new DatabaseContext();
+                using var transaction = db.Database.BeginTransaction();
                 var table = GetDataSet(db);
                 foreach (var item in items)
                 {
                     table.Add(item);
                 }
                 db.SaveChanges();
+                transaction.Commit();
             }
             return items;
         }

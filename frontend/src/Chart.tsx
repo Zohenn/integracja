@@ -6,7 +6,7 @@ import {
   useResourceStore
 } from './stores/resourceStore';
 import { useConflictStore } from './stores/conflictStore';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import {
   eachDayOfInterval,
@@ -25,14 +25,15 @@ import {
   CircularProgress, Divider,
   FormControl, FormControlLabel,
   FormLabel,
-  Grid,
-  ListSubheader, Radio, RadioGroup,
+  Grid, InputLabel,
+  ListSubheader, MenuItem, Radio, RadioGroup, Select,
   Slider,
   Stack,
   Typography
 } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import { isDateInRange } from './utils';
+import { FileExportSection, FileImportExportSection, FileImportSection } from './FileImportExportSection';
 
 const resourceColors: Record<Resources, string | Record<string, string>> = {
   oil: '#000000',
@@ -97,12 +98,26 @@ export function Chart({ selectedResource }: ChartProps) {
     let url = `http://localhost:8080/api/rest/${selectedResource}`;
     const query = new URLSearchParams();
     query.append('format', fileType);
-    if(dataSource === 'date-range'){
+    if (dataSource === 'date-range') {
       url += '/date-range'
       query.append('startDate', formatISO(dateRange[0]));
       query.append('endDate', formatISO(dateRange[1]));
     }
     window.location.href = `${url}?${query.toString()}`
+  }
+
+  const importData = async (dataType: string, file: File) => {
+    let url = `http://localhost:8080/api/rest/${dataType}/upload`;
+    const formData = new FormData();
+    formData.append('file', file);
+    await axios.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    conflictStore.reset();
+    resourceStore.reset();
   }
 
   const dataForRange = useMemo(() =>
@@ -210,7 +225,7 @@ export function Chart({ selectedResource }: ChartProps) {
                          onChange={(value) => setDateRange(value)}/>
       </Box>
       <Divider/>
-      <FileExportSection onExport={exportData}/>
+      <FileImportExportSection onExport={exportData} onImport={importData}/>
     </>
   )
 }
@@ -237,39 +252,5 @@ function DateRangeSlider({ dateRange, resourceInfo, onChange }: DateRangeSliderP
             value={dateRange}
             onChange={(_, value) => onChange(value as [number, number])}
             valueLabelDisplay='auto'/>
-  )
-}
-
-interface FileExportSectionProps {
-  onExport: (dataSource: string, fileType: string) => void;
-}
-
-function FileExportSection({ onExport }: FileExportSectionProps) {
-  const [dataSource, setDataSource] = useState('date-range');
-  const [fileType, setFileType] = useState('json');
-
-  return (
-    <Stack spacing={2}>
-      <Typography variant="h6" component="h6">Export data</Typography>
-      <Stack direction='row' spacing={5}>
-        <FormControl>
-          <FormLabel>Data source</FormLabel>
-          <RadioGroup row value={dataSource} onChange={(_, value) => setDataSource(value)}>
-            <FormControlLabel value='date-range' control={<Radio/>} label='Visible range'/>
-            <FormControlLabel value='all' control={<Radio/>} label='All data'/>
-          </RadioGroup>
-        </FormControl>
-        <FormControl>
-          <FormLabel>File type</FormLabel>
-          <RadioGroup row value={fileType} onChange={(_, value) => setFileType(value)}>
-            <FormControlLabel value='json' control={<Radio/>} label='JSON'/>
-            <FormControlLabel value='xml' control={<Radio/>} label='XML'/>
-          </RadioGroup>
-        </FormControl>
-      </Stack>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Button variant="contained" onClick={() => onExport(dataSource, fileType)}>Export</Button>
-      </Box>
-    </Stack>
   )
 }

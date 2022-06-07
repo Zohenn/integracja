@@ -28,18 +28,21 @@ interface ResourceStore {
   resources: { [k in Resources]?: Resource };
 
   init: () => Promise<void>;
+  reset: () => void;
 }
 
 const resourceKeys: Resources[] = ['naturalgas', 'oil', 'gold', 'grain'];
 
+const initialResourcesState = {
+  oil: undefined,
+  naturalgas: undefined,
+  gold: undefined,
+  grain: undefined,
+};
+
 export const useResourceStore = create<ResourceStore>((set, get) => ({
   initialized: false,
-  resources: {
-    oil: undefined,
-    naturalgas: undefined,
-    gold: undefined,
-    grain: undefined,
-  },
+  resources: { ...initialResourcesState },
 
   init: async () => {
     if (get().initialized) {
@@ -56,5 +59,9 @@ export const useResourceStore = create<ResourceStore>((set, get) => ({
     }));
 
     set({ initialized: true, resources });
+  },
+
+  reset: () => {
+    set({ initialized: false, resources: { ...initialResourcesState } })
   }
 }));

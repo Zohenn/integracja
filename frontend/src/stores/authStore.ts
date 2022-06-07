@@ -11,6 +11,7 @@ interface User {
 interface AuthStore {
   user: User | null;
   isSignedIn: () => boolean;
+  isAdmin: () => boolean;
   signIn: (username: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }

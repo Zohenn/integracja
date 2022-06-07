@@ -14,6 +14,7 @@ import { Resource, Resources, useResourceStore } from './stores/resourceStore';
 import { format } from 'date-fns';
 import { useConflictStore } from './stores/conflictStore';
 import { Chart } from './Chart';
+import { UserSection } from './UserSection';
 
 interface ResourcesListProps {
   selectedResource: Resources;
@@ -61,13 +62,14 @@ export function ChartSection() {
 
   useEffect(() => {
     init();
-  }, []);
+  }, [initialized]);
 
   return (
     <Paper sx={{ padding: 3, borderRadius: 3 }} elevation={6}>
       {
         initialized ?
           <Stack spacing={2}>
+            <UserSection/>
             <ResourcesList selectedResource={resource} onSelectionChanged={(resource) => setResource(resource)}/>
             <Chart selectedResource={resource}/>
           </Stack> : <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

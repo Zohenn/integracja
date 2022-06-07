@@ -11,6 +11,7 @@ interface ConflictStore {
   conflicts: Conflict[];
 
   init: () => Promise<void>;
+  reset: () => void;
 }
 
 export const useConflictStore = create<ConflictStore>((set, get) => ({
@@ -27,5 +28,9 @@ export const useConflictStore = create<ConflictStore>((set, get) => ({
       initialized: true,
       conflicts: response.data.map((conflict) => ({ ...conflict, date: new Date(conflict.date) }))
     });
+  },
+
+  reset: () => {
+    set({initialized: false, conflicts: []})
   }
 }));

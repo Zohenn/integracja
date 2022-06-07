@@ -31,7 +31,7 @@ export function SignInSection() {
   return (
     <Container maxWidth='sm'>
       <Paper sx={{ padding: 3, borderRadius: 3 }} elevation={6}>
-        <form onSubmit={signIn}>
+        <form onSubmit={signIn} autoComplete="off">
           <Stack spacing={2}>
             <Typography variant='h6' component='h6'>Sign in</Typography>
             <TextField label='Username'
