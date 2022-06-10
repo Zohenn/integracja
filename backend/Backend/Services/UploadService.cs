@@ -14,7 +14,6 @@ namespace Backend.Services
         public List<T>? Upload(string data, string format)
         {
             List<T>? items;
-            Console.WriteLine(format);
             switch (format)
             {
                 case "application/json":

@@ -1,0 +1,1 @@
+<ArrayOfConflict xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><Conflict><Date>2020-02-01T00:00:00</Date><Name>Something</Name></Conflict><Conflict><Date>2021-02-01T00:00:00</Date><Name>Something2</Name></Conflict></ArrayOfConflict>

@@ -27,21 +27,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isAdmin: () => get().isSignedIn() && get().user!.role === "admin",
 
   signIn: async (username, password) => {
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-    // set({ user: { username: 'Username', role: 'user' }});
-    // return;
-
     const response = await axios.post<LoginResponse>('/api/rest/users/authenticate', { username, password });
 
-    if(response.status === 200){
-      const { token, ...user } = response.data;
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      set({ user });
-    } else if(response.status === 400){
-      throw 'Bad credentials';
-    } else {
-      throw 'Login error';
-    }
+    const { token, ...user } = response.data;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    set({ user });
   },
 
   signOut: async () => {

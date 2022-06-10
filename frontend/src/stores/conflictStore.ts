@@ -31,6 +31,6 @@ export const useConflictStore = create<ConflictStore>((set, get) => ({
   },
 
   reset: () => {
-    set({initialized: false, conflicts: []})
+    set({ initialized: false, conflicts: [] })
   }
 }));
